@@ -23,29 +23,7 @@
         <%= bill_form.text_field :city, :class => 'required' %>
       </p>
 
-      <% if Spree::Config[:address_requires_state] %>
-        <p class="field" id="bstate">
-          <% have_states = !@order.bill_address.country.states.empty? %>
-          <%= bill_form.label :state, t(:state) %><span class="req">*</span><br />
-          <noscript>
-            <%= bill_form.text_field :state_name, :class => 'required' %>
-          </noscript>
-          <% state_elements = [
-             bill_form.collection_select(:state_id, @order.bill_address.country.states,
-                                :id, :name,
-                                {:include_blank => true},
-                                {:class => have_states ? 'required' : 'hidden',
-                                :disabled => !have_states}) +
-             bill_form.text_field(:state_name,
-                                :class => !have_states ? 'required' : 'hidden',
-                                :disabled => have_states)
-             ].join.gsub('"', "'").gsub("\n", "")
-          %>
-          <%= javascript_tag do -%>
-            document.write("<%== state_elements %>");
-          <% end -%>
-        </p>
-      <% end %>
+      <%= render :partial => 'bill_state_field', :locals => {:bill_form => bill_form} if Spree::Config[:address_requires_state] %>
 
       <p class="field" id="bzipcode">
         <%= bill_form.label :zipcode, t(:zip) %><span class="req">*</span><br />
@@ -75,7 +53,7 @@
   <%= form.fields_for :ship_address do |ship_form| %>
     <legend><%= t(:shipping_address)%></legend>
     <p class="field checkbox" data-hook="use_billing">
-      <%= check_box_tag 'order[use_billing]', '1', (!(@order.bill_address.empty? && @order.ship_address.empty?) && @order.bill_address.eql?(@order.ship_address)) %> 
+      <%= check_box_tag 'order[use_billing]', '1', (!(@order.bill_address.empty? && @order.ship_address.empty?) && @order.bill_address.eql?(@order.ship_address)) %>
       <%= label_tag :order_use_billing, t(:use_billing_address), :id => 'use_billing' %>
     </p>
     <div class="inner" data-hook="shipping_inner">
@@ -100,29 +78,7 @@
         <%= ship_form.text_field :city, :class => 'required' %>
       </p>
 
-      <% if Spree::Config[:address_requires_state] %>
-        <p class="field" id="sstate">
-          <% have_states = !@order.ship_address.country.states.empty? %>
-          <%= ship_form.label :state, t(:state) %><span class="req">*</span><br />
-          <noscript>
-            <%= ship_form.text_field :state_name, :class => 'required' %>
-          </noscript>
-          <% state_elements = [
-             ship_form.collection_select(:state_id, @order.ship_address.country.states,
-                                :id, :name,
-                                {:include_blank => true},
-                                {:class => have_states ? 'required' : 'hidden',
-                                :disabled => !have_states}) +
-             ship_form.text_field(:state_name,
-                                :class => !have_states ? 'required' : 'hidden',
-                                :disabled => have_states)
-             ].join.gsub('"', "'").gsub("\n", "")
-          %>
-          <%= javascript_tag do -%>
-            document.write("<%== state_elements %>");
-          <% end %>
-        </p>
-      <% end %>
+      <%= render :partial => 'ship_state_field', :locals => {:ship_form => ship_form} if Spree::Config[:address_requires_state] %>
 
       <p class="field" id="szipcode">
         <%= ship_form.label :zipcode, t(:zip) %><span class="req">*</span><br />
