@@ -164,8 +164,8 @@ module Admin::BaseHelper
 
   def product_picker_field(name, value)
     products = Product.with_ids(value)
-    product_names_hash = products.inject({}){|memo,item| memo[item.id] = item.name; memo}
-    %(<input type="text" name="#{name}" value="#{value}" class="tokeninput products" data-names='#{product_names_hash.to_json}' />).html_safe
+    product_names_hash = products.inject([]){|memo,item| memo << {id: item.id, name: item.name}; memo}
+    %(<input type="text" name="#{name}" value="#{value}" class="tokeninput products" data-pre='#{product_names_hash.to_json}' />).html_safe
   end
 
   # renders set of hidden fields and button to add new record using nested_attributes
