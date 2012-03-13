@@ -68,6 +68,11 @@
         $('#payment-methods li').hide();
         if(this.checked){ $('#payment_method_'+this.value).show(); }
       }).triggerHandler('click');
+
+      $('form.edit_order').submit(function() {
+        $(this).find(':submit, :image').attr('disabled', true).removeClass('primary').addClass('disabled');
+      });
+
     }
   });
 })(jQuery);
