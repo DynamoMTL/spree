@@ -162,13 +162,13 @@ module Admin::BaseHelper
      end # case
    end
 
-  def product_picker_field(name, value)
-    products = Product.with_ids(value)
-    product_rules = products.collect{|p|{:id=>p.id,:name=>p.name}}
-    %(<input type="text" name="#{name}" value="#{value}" class="tokeninput products" data-names='#{product_names_hash.to_json}' data-pre='#{product_rules.to_json}'/>).html_safe
-    product_names_hash = products.inject([]){|memo,item| memo << {id: item.id, name: item.name}; memo}
-    %(<input type="text" name="#{name}" value="#{value}" class="tokeninput products" data-pre='#{product_names_hash.to_json}' />).html_safe
-  end
+   def product_picker_field(name, value)
+     products = Product.with_ids(value.split(','))
+     product_names = products.inject({}){|memo,item| memo[item.id] = item.name; memo}
+     product_rules = products.collect{ |p| { :id => p.id, :name => p.name } }
+     %(<input type="text" name="#{name}" value="#{value}" class="tokeninput products" data-names='#{product_names.to_json}' data-pre='#{product_rules.to_json}'/>).html_safe
+   end
+  
 
   # renders set of hidden fields and button to add new record using nested_attributes
   def link_to_add_fields(name, append_to_selector, f, association)
