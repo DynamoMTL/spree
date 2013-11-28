@@ -454,8 +454,9 @@ module Spree
             self.payment_total += payment.amount
           end
         end
-      rescue Core::GatewayError
-        !!Spree::Config[:allow_checkout_on_gateway_error]
+      rescue Core::GatewayError => e
+        result = !!Spree::Config[:allow_checkout_on_gateway_error]
+        errors.add(:base, e.message) and return result
       end
     end
 
