@@ -39,7 +39,6 @@ module Spree
                     :originator => self,
                     :label => label,
                     :mandatory => mandatory }
-          target.adjustments.create(params, :without_protection => true)
           adjusted = target.adjustments.create(params, :without_protection => true)
           adjusted.update_column(:eligible, true) if label == 'Promotion (Free Shipping)'
         end
