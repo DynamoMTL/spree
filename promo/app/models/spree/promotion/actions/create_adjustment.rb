@@ -40,6 +40,8 @@ module Spree
                     :label => label,
                     :mandatory => mandatory }
           target.adjustments.create(params, :without_protection => true)
+          adjusted = target.adjustments.create(params, :without_protection => true)
+          adjusted.update_column(:eligible, true) if label == 'Promotion (Free Shipping)'
         end
 
         # Ensure a negative amount which does not exceed the sum of the order's
