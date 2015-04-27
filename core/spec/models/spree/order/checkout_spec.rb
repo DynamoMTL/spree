@@ -399,7 +399,7 @@ describe Spree::Order, :type => :model do
           let(:payment_state) { 'checkout' }
 
           before do
-            expect(order).to receive(:process_payments!).once { true }
+            expect(order).to receive(:authorize_payments!).once { true }
           end
 
           it "transitions to complete" do
@@ -429,7 +429,7 @@ describe Spree::Order, :type => :model do
         end
 
         it "does not call process payments" do
-          expect(order).not_to receive(:process_payments!)
+          expect(order).not_to receive(:authorize_payments!)
           order.next!
           assert_state_changed(order, 'payment', 'complete')
           expect(order.state).to eq("complete")
@@ -485,7 +485,7 @@ describe Spree::Order, :type => :model do
     skip "should only call default transitions once when checkout_flow is redefined" do
       order = SubclassedOrder.new
       allow(order).to receive_messages :payment_required? => true
-      expect(order).to receive(:process_payments!).once
+      expect(order).to receive(:authorize_payments!).once
       order.state = "payment"
       order.next!
       assert_state_changed(order, 'payment', 'complete')
@@ -542,7 +542,7 @@ describe Spree::Order, :type => :model do
       allow(order).to receive(:ensure_line_items_are_in_stock) { true }
       allow(order).to receive(:ensure_line_item_variants_are_not_deleted) { true }
       expect(order).not_to receive(:payment_required?)
-      expect(order).not_to receive(:process_payments!)
+      expect(order).not_to receive(:authorize_payments!)
       order.next!
       assert_state_changed(order, 'cart', 'complete')
     end

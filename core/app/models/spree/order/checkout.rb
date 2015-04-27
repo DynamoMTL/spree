@@ -75,7 +75,7 @@ module Spree
                     order.errors.add(:base, Spree.t(:no_payment_found))
                     false
                   elsif order.payment_required?
-                    order.process_payments!
+                    order.authorize_payments!
                   end
                 end
                 after_transition to: :complete, do: :persist_user_credit_card

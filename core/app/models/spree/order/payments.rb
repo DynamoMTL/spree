@@ -31,6 +31,10 @@ module Spree
           process_payments_with(:purchase!)
         end
 
+        def auto_capture_payments!
+          process_payments_with(:auto_capture!)
+        end
+
         def pending_payments
           payments.select { |payment| payment.pending? }
         end

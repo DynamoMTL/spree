@@ -124,6 +124,27 @@ module Spree
       end
     end
 
+    context "#auto_capture_payments" do
+      let(:payment1) { stub_model(Spree::Payment) }
+      let(:payment2) { stub_model(Spree::Payment) }
+      before {
+        allow(payment1).to receive_message_chain(:payment_method, :auto_capture?).and_return(true)
+        allow(payment2).to receive_message_chain(:payment_method, :auto_capture?).and_return(false)
+        allow(payment1).to receive(:handle_payment_preconditions).and_return(true)
+        allow(payment2).to receive(:handle_payment_preconditions).and_return(true)
+        allow(order).to receive_messages :unprocessed_payments => [payment1, payment2], :total => 10
+      }
+      subject { order.auto_capture_payments! }
+
+      it "captures payments with purchase!" do
+        expect(payment1).to receive(:purchase!)
+        expect(payment2).not_to receive(:purchase!)
+        subject
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
     context "#authorize_payments!" do
       let(:payment) { stub_model(Spree::Payment) }
       before { allow(order).to receive_messages :unprocessed_payments => [payment], :total => 10 }

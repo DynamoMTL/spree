@@ -9,6 +9,13 @@ module Spree
         end
       end
 
+      # Capture if auto_capture mode enabled
+      def auto_capture!
+        if payment_method && payment_method.auto_capture?
+          purchase!
+        end
+      end
+
       def authorize!
         handle_payment_preconditions { process_authorization }
       end

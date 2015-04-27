@@ -14,15 +14,15 @@ describe Spree::Order, type: :model do
       before do
         order.state = "confirm"
         order.run_callbacks(:create)
-        allow(order).to receive_messages payment_required?: true
-        allow(order).to receive_messages process_payments!: true
+        allow(order).to receive_messages :payment_required? => true
+        allow(order).to receive_messages :authorize_payments! => true
         allow(order).to receive :has_available_shipment
       end
 
       context "when payment processing succeeds" do
         before do
           order.payments << FactoryGirl.create(:payment, state: 'checkout', order: order)
-          allow(order).to receive_messages process_payments: true
+          allow(order).to receive_messages authorize_payments: true
         end
 
         it "should finalize order when transitioning to complete state" do
@@ -31,8 +31,7 @@ describe Spree::Order, type: :model do
         end
 
         context "when credit card processing fails" do
-          before { allow(order).to receive_messages process_payments!: false }
-
+          before { allow(order).to receive_messages :authorize_payments! => false }
           it "should not complete the order" do
             order.next
             expect(order.state).to eq("confirm")
@@ -41,8 +40,7 @@ describe Spree::Order, type: :model do
       end
 
       context "when payment processing fails" do
-        before { allow(order).to receive_messages process_payments!: false }
-
+        before { allow(order).to receive_messages :authorize_payments! => false }
         it "cannot transition to complete" do
           order.next
           expect(order.state).to eq("confirm")

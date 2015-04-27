@@ -85,6 +85,12 @@ describe Spree::Order, :type => :model do
       order.finalize!
     end
 
+    it "should auto capture payments" do
+      allow(order).to receive(:payment_required?).and_return(true)
+      expect(order).to receive(:auto_capture_payments!)
+      order.finalize!
+    end
+
     context "order is considered risky" do
       before do
         allow(order).to receive_messages :is_risky? => true
