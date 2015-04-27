@@ -48,6 +48,22 @@ describe Spree::Order, type: :model do
           expect(order.state).to eq("confirm")
         end
       end
+
+      context "when a line item went out-of-stock in the meantime" do
+        it "should not capture the payment" do
+          order = create(:order_with_line_items, state: 'confirm')
+          allow(order).to receive_messages :payment_required? => true
+          payment = FactoryGirl.create(:payment, order: order)
+          allow(payment.payment_method).to receive(:auto_capture?).and_return(true)
+          order.payments << payment
+
+          allow(order).to receive(:insufficient_stock_lines).and_return([1])
+
+          order.next
+          expect(order.reload.state).to eq('address')
+          expect(payment.reload.state).to_not eq('completed')
+        end
+      end
     end
 
     context "when current state is delivery" do
