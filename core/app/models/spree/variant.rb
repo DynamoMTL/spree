@@ -222,7 +222,7 @@ module Spree
 
     def update_counter_cache
       return unless should_track_inventory?
-      update_column(:count_on_hand, computed_total_on_hand)
+      update_attribute(:count_on_hand, computed_total_on_hand)
     end
 
     private

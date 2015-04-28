@@ -217,7 +217,7 @@ module Spree
 
     def update_counter_cache
       # return if any_variants_not_track_inventory?
-      update_column(:count_on_hand, computed_total_on_hand)
+      update_attribute(:count_on_hand, computed_total_on_hand)
     end
 
     # Master variant may be deleted (i.e. when the product is deleted)
