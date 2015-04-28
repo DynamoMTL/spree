@@ -81,9 +81,9 @@ module Spree
         stock_changed = (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
 
         if !Spree::Config.binary_inventory_cache || stock_changed
-          variant.touch
           variant.update_counter_cache
           variant.product.update_counter_cache
+          variant.touch
         end
       end
   end
