@@ -358,7 +358,7 @@ describe Spree::CheckoutController, :type => :controller do
       end
 
       it "when GatewayError is raised" do
-        allow_any_instance_of(Spree::Payment).to receive(:process!).and_raise(Spree::Core::GatewayError.new(Spree.t(:payment_processing_failed)))
+        allow_any_instance_of(Spree::Payment).to receive(:authorize!).and_raise(Spree::Core::GatewayError.new(Spree.t(:payment_processing_failed)))
         spree_put :update, :order => {}
         expect(flash[:error]).to eq(Spree.t(:payment_processing_failed))
       end
