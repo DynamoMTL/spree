@@ -32,7 +32,7 @@ module Spree
         end
 
         def auto_capture_payments!
-          process_payments_with(:auto_capture!)
+          process_pending_payments_with(:auto_capture!)
         end
 
         def pending_payments
@@ -52,6 +52,26 @@ module Spree
           raise Core::GatewayError.new(Spree.t(:no_payment_found)) if unprocessed_payments.empty?
 
           unprocessed_payments.each do |payment|
+            break if payment_total >= total
+
+            payment.public_send(method)
+
+            if payment.completed?
+              self.payment_total += payment.amount
+            end
+          end
+        rescue Core::GatewayError => e
+          result = !!Spree::Config[:allow_checkout_on_gateway_error]
+          errors.add(:base, e.message) and return result
+        end
+
+        def process_pending_payments_with(method)
+          # Don't run if there is nothing to pay.
+          return if payment_total >= total
+          # Prevent orders from transitioning to complete without a successfully processed payment.
+          raise Core::GatewayError.new(Spree.t(:no_payment_found)) if pending_payments.empty?
+
+          pending_payments.each do |payment|
             break if payment_total >= total
 
             payment.public_send(method)

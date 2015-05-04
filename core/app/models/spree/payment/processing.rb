@@ -9,15 +9,16 @@ module Spree
         end
       end
 
-      # Capture if auto_capture mode enabled
+      def authorize!
+        handle_payment_preconditions { process_authorization }
+      end
+
+      # Capture if auto_capture mode enabled.
+      # #authorize! would have been called before.
       def auto_capture!
         if payment_method && payment_method.auto_capture?
           purchase!
         end
-      end
-
-      def authorize!
-        handle_payment_preconditions { process_authorization }
       end
 
       # Captures the entire amount of a payment.
