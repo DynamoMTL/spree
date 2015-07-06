@@ -17,7 +17,7 @@ module Spree
       # #authorize! would have been called before.
       def auto_capture!
         if payment_method && payment_method.auto_capture?
-          purchase!
+          capture!
         end
       end
 
