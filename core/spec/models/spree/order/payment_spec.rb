@@ -124,6 +124,28 @@ module Spree
       end
     end
 
+    context "#auto_capture_payments" do
+      let(:payment1) { stub_model(Spree::Payment, order: order) }
+      let(:payment2) { stub_model(Spree::Payment, order: order) }
+      before {
+        allow(payment1).to receive_message_chain(:payment_method, :auto_capture?).and_return(true)
+        allow(payment2).to receive_message_chain(:payment_method, :auto_capture?).and_return(false)
+        allow(payment1).to receive(:protect_from_connection_error).and_return(true)
+        allow(payment2).to receive(:protect_from_connection_error).and_return(true)
+        allow(order).to receive_messages :pending_payments => [payment1, payment2], :unprocessed_payments => [], :total => 10
+      }
+      subject { order.auto_capture_payments! }
+
+      it "captures payments with capture! if payment method has auto_capture flag set" do
+        expect(payment1).to receive(:capture!)
+        expect(payment2).not_to receive(:capture!)
+        subject
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
+
     context "#authorize_payments!" do
       let(:payment) { stub_model(Spree::Payment) }
       before { allow(order).to receive_messages :unprocessed_payments => [payment], :total => 10 }

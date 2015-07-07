@@ -409,6 +409,8 @@ module Spree
       save!
       updater.run_hooks
 
+      auto_capture_payments! if payment_required?
+
       touch :completed_at
 
       deliver_order_confirmation_email unless confirmation_delivered?

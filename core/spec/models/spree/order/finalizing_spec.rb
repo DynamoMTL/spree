@@ -16,6 +16,8 @@ describe Spree::Order, :type => :model do
     end
 
     it "should sell inventory units" do
+      order = create(:order_with_line_items)
+
       order.shipments.each do |shipment|
         expect(shipment).to receive(:update!)
         expect(shipment).to receive(:finalize!)
@@ -24,15 +26,16 @@ describe Spree::Order, :type => :model do
     end
 
     it "should decrease the stock for each variant in the shipment" do
+      order = create(:order_with_line_items)
+
       order.shipments.each do |shipment|
-        expect(shipment.stock_location).to receive(:decrease_stock_for_variant)
+        expect(shipment.stock_location).to receive(:unstock)
       end
       order.finalize!
     end
 
     it "should change the shipment state to ready if order is paid" do
-      Spree::Shipment.create(order: order, stock_location: create(:stock_location))
-      order.shipments.reload
+      order = create(:order_with_line_items)
 
       allow(order).to receive_messages(paid?: true, complete?: true)
       order.finalize!
@@ -42,7 +45,10 @@ describe Spree::Order, :type => :model do
 
     after { Spree::Config.set track_inventory_levels: true }
     it "should not sell inventory units if track_inventory_levels is false" do
-      Spree::Config.set track_inventory_levels: false
+      Spree::Shipment.create(order: order)
+      order.shipments.reload
+
+      Spree::Config.set :track_inventory_levels => false
       expect(Spree::InventoryUnit).not_to receive(:sell_units)
       order.finalize!
     end
@@ -76,6 +82,12 @@ describe Spree::Order, :type => :model do
       adjustments.each do |adj|
         expect(adj).to receive(:close)
       end
+      order.finalize!
+    end
+
+    it "should auto capture payments" do
+      allow(order).to receive(:payment_required?).and_return(true)
+      expect(order).to receive(:auto_capture_payments!)
       order.finalize!
     end
 
